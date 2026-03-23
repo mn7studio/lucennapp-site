@@ -1,63 +1,523 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lucen</title>
-  <meta name="description" content="Lucen — astrology, dream and insight app." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lucen — Astroloji, Rüya ve İçgörü</title>
+  <meta name="description" content="Kişiselleştirilmiş astroloji, rüya yorumu ve içgörü uygulaması. Doğum haritanı keşfet, rüyalarının anlamını öğren." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,200;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
   <style>
+    /* ─── Reset ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    /* ─── Base ─────────────────────────────────────────────── */
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0b1020;
-      color: #ffffff;
-      display: flex;
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: #0D0D1A;
+      color: #F2F2F7;
       min-height: 100vh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── Atmosphere: blobs ────────────────────────────────── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 {
+      width: 700px; height: 700px;
+      top: -220px; left: -260px;
+      background: radial-gradient(circle,
+        rgba(58,21,128,0.30) 0%,
+        rgba(58,21,128,0.14) 40%,
+        transparent 68%);
+    }
+    .blob-2 {
+      width: 640px; height: 640px;
+      bottom: 60px; right: -220px;
+      background: radial-gradient(circle,
+        rgba(42,14,114,0.32) 0%,
+        rgba(42,14,114,0.14) 42%,
+        transparent 68%);
+    }
+    .blob-3 {
+      width: 480px; height: 480px;
+      top: 42%; left: 52%;
+      background: radial-gradient(circle,
+        rgba(58,21,128,0.18) 0%,
+        transparent 62%);
+    }
+
+    /* ─── Star canvas ───────────────────────────────────────── */
+    #stars {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ─── Nav ───────────────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 60px;
+      padding: 0 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(13,13,26,0.75);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .nav-logo {
+      font-size: 13px;
+      font-weight: 200;
+      letter-spacing: 0.65em;
+      padding-right: 0.65em;
+      color: #FFD060;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 6px;
+    }
+    .nav-links a {
+      font-size: 12px;
+      font-weight: 500;
+      color: #8E8E93;
+      text-decoration: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .nav-links a:hover {
+      color: #F2F2F7;
+      background: rgba(255,255,255,0.05);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    /* ─── Hero ──────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 24px;
+      padding: 120px 24px 80px;
     }
-    .box {
-      max-width: 700px;
+    .hero-inner { max-width: 680px; }
+
+    .hero-star {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 58px; height: 58px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 40% 40%,
+        rgba(46,26,112,0.95) 0%,
+        rgba(19,10,58,0.98) 100%);
+      border: 1.5px solid rgba(255,208,96,0.38);
+      box-shadow: 0 0 40px rgba(255,208,96,0.20), 0 0 8px rgba(255,208,96,0.12);
+      color: #FFD060;
+      font-size: 20px;
+      margin-bottom: 36px;
     }
-    h1 {
-      font-size: 42px;
-      margin-bottom: 12px;
+    .hero h1 {
+      font-size: clamp(40px, 7.5vw, 70px);
+      font-weight: 700;
+      line-height: 1.08;
+      letter-spacing: -2px;
+      color: #F2F2F7;
+      margin-bottom: 24px;
     }
-    p {
+    .hero-sub {
       font-size: 18px;
-      line-height: 1.6;
-      color: #c9d1e8;
+      font-weight: 400;
+      line-height: 1.75;
+      color: #8E8E93;
+      max-width: 500px;
+      margin: 0 auto 44px;
     }
-    .links {
-      margin-top: 28px;
+    .hero-actions {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
       flex-wrap: wrap;
     }
-    a {
-      color: white;
+    .btn-primary {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      color: #1A1200;
       text-decoration: none;
-      border: 1px solid #3a4668;
-      padding: 12px 18px;
-      border-radius: 10px;
+      padding: 14px 32px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, #FFBB4D 0%, #F5A020 100%);
+      box-shadow: 0 8px 22px rgba(245,166,35,0.38);
+      display: inline-block;
+      transition: opacity 0.2s, transform 0.2s;
     }
-    a:hover {
-      background: #141b31;
+    .btn-primary:hover { opacity: 0.92; transform: translateY(-1px); }
+
+    .btn-ghost {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #8E8E93;
+      text-decoration: none;
+      padding: 12px 22px;
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 12px;
+      display: inline-block;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover {
+      color: #F2F2F7;
+      border-color: rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column;
+      align-items: center; gap: 6px;
+      color: rgba(142,142,147,0.40);
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 2px; text-transform: uppercase;
+      animation: bob 2.2s ease-in-out infinite;
+    }
+    @keyframes bob {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(6px); }
+    }
+
+    /* ─── Section base ─────────────────────────────────────── */
+    .section {
+      position: relative; z-index: 1;
+      padding: 100px 24px;
+    }
+    .section-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: #FFD060; margin-bottom: 14px;
+    }
+    .section-title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700; letter-spacing: -1px;
+      color: #F2F2F7; margin-bottom: 56px;
+      line-height: 1.15;
+    }
+
+    /* ─── Feature cards ────────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(252px, 1fr));
+      gap: 18px;
+    }
+    .feature-card {
+      background: rgba(26,26,46,0.60);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 22px;
+      padding: 32px 28px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .feature-card:hover {
+      border-color: rgba(255,208,96,0.22);
+      transform: translateY(-4px);
+    }
+    .feature-icon {
+      width: 46px; height: 46px;
+      border-radius: 13px;
+      background: rgba(255,208,96,0.07);
+      border: 1px solid rgba(255,208,96,0.18);
+      display: flex; align-items: center; justify-content: center;
+      color: #FFD060; font-size: 18px;
+      margin-bottom: 22px;
+    }
+    .feature-card h3 {
+      font-size: 17px; font-weight: 600;
+      color: #F2F2F7; margin-bottom: 10px;
+      letter-spacing: -0.2px;
+    }
+    .feature-card p {
+      font-size: 14px; line-height: 1.75;
+      color: #8E8E93;
+    }
+
+    /* ─── App store section ────────────────────────────────── */
+    .app-section {
+      position: relative; z-index: 1;
+      padding: 80px 24px 100px;
+      text-align: center;
+    }
+    .app-inner { max-width: 560px; margin: 0 auto; }
+
+    .yakinda-pill {
+      display: inline-flex; align-items: center;
+      padding: 5px 14px;
+      background: rgba(255,208,96,0.07);
+      border: 1px solid rgba(255,208,96,0.22);
+      border-radius: 20px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: #FFD060; margin-bottom: 22px;
+    }
+    .app-title {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700; letter-spacing: -0.8px;
+      color: #F2F2F7; margin-bottom: 12px;
+    }
+    .app-sub {
+      font-size: 15px; color: #8E8E93;
+      line-height: 1.6; margin-bottom: 36px;
+    }
+    .store-badges {
+      display: flex; gap: 14px;
+      justify-content: center; flex-wrap: wrap;
+    }
+    .store-badge {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 22px;
+      background: rgba(26,26,46,0.55);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0.65; cursor: default;
+    }
+    .store-badge-label { text-align: left; }
+    .store-badge-label small {
+      display: block; font-size: 9px; font-weight: 600;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      color: rgba(142,142,147,0.70);
+    }
+    .store-badge-label span {
+      display: block; font-size: 15px; font-weight: 600;
+      color: #F2F2F7; letter-spacing: -0.2px;
+    }
+
+    /* ─── Divider ───────────────────────────────────────────── */
+    .h-rule {
+      position: relative; z-index: 1;
+      max-width: 1080px; margin: 0 auto;
+      height: 1px; background: rgba(255,255,255,0.06);
+    }
+
+    /* ─── Footer ────────────────────────────────────────────── */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      background: rgba(6,6,16,0.55);
+      padding: 32px 40px;
+    }
+    .footer-inner {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo {
+      font-size: 12px; font-weight: 200;
+      letter-spacing: 0.6em; padding-right: 0.6em;
+      color: #FFD060; text-decoration: none;
+    }
+    .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .footer-links a {
+      font-size: 12px; font-weight: 500;
+      color: #8E8E93; text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-links a:hover { color: #F2F2F7; }
+    .footer-copy {
+      font-size: 12px;
+      color: rgba(142,142,147,0.42);
+    }
+
+    /* ─── Responsive ────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      nav { padding: 0 20px; }
+      .nav-links a { padding: 5px 10px; font-size: 11px; }
+      footer { padding: 28px 20px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .blob-1 { width: 400px; height: 400px; }
+      .blob-2 { width: 360px; height: 360px; }
+      .blob-3 { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h1>Lucen</h1>
-    <p>Your personal astrology, dream and insight companion.</p>
-    <div class="links">
-      <a href="https://legal.lucennapp.com/privacy.html">Privacy Policy</a>
-      <a href="https://legal.lucennapp.com/terms.html">Terms of Use</a>
-      <a href="https://legal.lucennapp.com/support.html">Support</a>
+
+  <!-- Atmosphere -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <canvas id="stars"></canvas>
+
+  <!-- Nav -->
+  <nav>
+    <a href="/" class="nav-logo">L U C E N</a>
+    <div class="nav-links">
+      <a href="https://legal.lucennapp.com/privacy.html">Gizlilik</a>
+      <a href="https://legal.lucennapp.com/terms.html">Koşullar</a>
+      <a href="https://legal.lucennapp.com/support.html">Destek</a>
     </div>
-  </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-star">✦</div>
+      <h1>Evreni Dinle,<br>Kendini Anla</h1>
+      <p class="hero-sub">
+        Doğum haritanı keşfet, rüyalarının anlamını öğren
+        ve her güne kozmik bir bakış açısıyla başla.
+      </p>
+      <div class="hero-actions">
+        <a href="#features" class="btn-primary">Özellikleri Keşfet</a>
+        <a href="https://legal.lucennapp.com/support.html" class="btn-ghost">Destek</a>
+      </div>
+    </div>
+    <div class="scroll-hint" aria-hidden="true">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <div class="h-rule"></div>
+  <section class="section" id="features">
+    <div class="section-inner">
+      <p class="section-label">Keşfet</p>
+      <h2 class="section-title">Lucen Ne Sunar?</h2>
+      <div class="features-grid">
+
+        <div class="feature-card">
+          <div class="feature-icon">✦</div>
+          <h3>Astroloji</h3>
+          <p>Günlük, haftalık ve aylık yorumlarla gökyüzünü rehber edin. Gezegen geçişleri ve enerji döngülerini kişisel yorumlarla takip et.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">◯</div>
+          <h3>Rüya Yorumları</h3>
+          <p>Gece gördüklerini anlat, sabah anlamını keşfet. Bilinçaltının sana ne söylediğini derinlemesine yorumlarla öğren.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">◈</div>
+          <h3>Natal Harita</h3>
+          <p>Doğum haritanı öğren. Büyük açılar, evler ve gezegen konumları hakkında yalnızca sana ait içerikler.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">✧</div>
+          <h3>Sana Özel</h3>
+          <p>Burç değil, sen. Doğum bilgilerinle şekillenen ve zamanla seninle birlikte büyüyen tamamen kişisel bir kozmik rehber.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- App download -->
+  <div class="h-rule"></div>
+  <section class="app-section">
+    <div class="app-inner">
+      <div class="yakinda-pill">Yakında</div>
+      <h2 class="app-title">Lucen'i İndir</h2>
+      <p class="app-sub">App Store ve Google Play'de yakında yayında.</p>
+      <div class="store-badges" aria-label="Mağaza bağlantıları yakında eklenecek">
+        <div class="store-badge">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#F2F2F7" aria-hidden="true">
+            <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+          </svg>
+          <div class="store-badge-label">
+            <small>Yakında</small>
+            <span>App Store</span>
+          </div>
+        </div>
+        <div class="store-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#F2F2F7" aria-hidden="true">
+            <path d="M3.18 23.76a2.5 2.5 0 0 0 2.68-.27l.09-.07L14.88 14H14L3.18 23.76zM20.57 10.29l-2.31-1.33-3.27 2.85 3.27 2.85 2.35-1.36a2.01 2.01 0 0 0-.04-3.01zM3.18.24L14 10h.88L5.95.58A2.5 2.5 0 0 0 3.18.24zM3 1.3v21.4L13.44 12 3 1.3z"/>
+          </svg>
+          <div class="store-badge-label">
+            <small>Yakında</small>
+            <span>Google Play</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-inner">
+      <a href="/" class="footer-logo">L U C E N</a>
+      <div class="footer-links">
+        <a href="https://legal.lucennapp.com/privacy.html">Gizlilik Politikası</a>
+        <a href="https://legal.lucennapp.com/terms.html">Kullanım Koşulları</a>
+        <a href="https://legal.lucennapp.com/support.html">Destek</a>
+      </div>
+      <p class="footer-copy">© 2026 Lucen. Tüm hakları saklıdır.</p>
+    </div>
+  </footer>
+
+  <!-- Stars JS -->
+  <script>
+    (function () {
+      var c = document.getElementById('stars');
+      if (!c || !c.getContext) return;
+      var ctx = c.getContext('2d');
+      var stars = [];
+      function resize() { c.width = window.innerWidth; c.height = window.innerHeight; }
+      window.addEventListener('resize', resize);
+      resize();
+      for (var i = 0; i < 58; i++) {
+        stars.push({
+          x: Math.random(), y: Math.random(),
+          r: Math.random() * 1.1 + 0.4,
+          a: Math.random() * 0.42 + 0.14,
+          s: Math.random() * 0.75 + 0.25,
+          p: Math.random() * Math.PI * 2
+        });
+      }
+      function draw() {
+        ctx.clearRect(0, 0, c.width, c.height);
+        var t = Date.now() / 1000;
+        for (var i = 0; i < stars.length; i++) {
+          var s = stars[i];
+          var alpha = s.a * (0.55 + 0.45 * Math.sin(t * s.s + s.p));
+          ctx.beginPath();
+          ctx.arc(s.x * c.width, s.y * c.height, s.r, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(255,255,255,' + alpha.toFixed(3) + ')';
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+  </script>
 </body>
 </html>
